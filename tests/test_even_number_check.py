@@ -26,6 +26,9 @@ class TestEvenNumberCheckOperator(unittest.TestCase):
         EvenNumberCheckOperator(
             task_id=TEST_TASK_ID, my_operator_param=self.even, dag=self.dag
         )
+        EvenNumberCheckOperator(
+            task_id=TEST_TASK_ID + "odd", my_operator_param=self.odd, dag=self.dag
+        )
 
     def test_even(self):
         """Tests that the EvenNumberCheckOperator returns True for 10."""
@@ -44,3 +47,18 @@ class TestEvenNumberCheckOperator(unittest.TestCase):
         assert ti.state == TaskInstanceState.SUCCESS
         result = ti.task.execute(ti.get_template_context())
         assert result is True
+
+    def test_odd(self):
+        """Tests that the EvenNumberCheckOperator returns False for 11."""
+        dagrun = self.dag.create_dagrun(
+            state=DagRunState.RUNNING,
+            execution_date=DATA_INTERVAL_START,
+            data_interval=(DATA_INTERVAL_START, DATA_INTERVAL_END),
+            start_date=DATA_INTERVAL_END,
+            run_type=DagRunType.MANUAL,
+        )
+
+        ti = dagrun.get_task_instance(task_id=TEST_TASK_ID + "odd")
+        ti.task = self.dag.get_task(task_id=TEST_TASK_ID + "odd")
+        result = ti.task.execute(ti.get_template_context())
+        assert result is False
