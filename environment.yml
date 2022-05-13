@@ -1,4 +1,4 @@
-name: py37airflow
+name: airflow-2.3.0
 channels:
   - conda-forge
   - defaults
